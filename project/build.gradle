@@ -1,0 +1,64 @@
+plugins {
+	id 'org.springframework.boot' version '2.7.3'
+	id 'io.spring.dependency-management' version '1.0.13.RELEASE'
+	id 'java'
+}
+
+group = 'com.dauo'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	implementation "com.querydsl:querydsl-jpa:${dependencyManagement.importedProperties['querydsl.version']}"
+	annotationProcessor(
+			"jakarta.persistence:jakarta.persistence-api",
+			"jakarta.annotation:jakarta.annotation-api",
+			"com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jpa")
+
+	implementation 'com.github.vladimir-bukhtoyarov:bucket4j-core:7.0.0'
+
+	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+
+	implementation 'com.opencsv:opencsv:5.5.2'
+
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'com.h2database:h2'
+	annotationProcessor 'org.projectlombok:lombok'
+	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+def generationPath = file("src/main/generated")
+task cleanGeneratedDir(type: Delete) {
+	delete generationPath
+}
+compileJava {
+	options.annotationProcessorGeneratedSourcesDirectory = generationPath
+}
+sourceSets {
+	main {
+		java {
+			srcDirs += generationPath
+		}
+	}
+}
